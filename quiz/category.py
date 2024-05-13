@@ -11,10 +11,16 @@ def display_files_in_directory(directory):
     files = os.listdir(directory)
     
     # Filter for CSV files
-    csv_files = [file for file in files if file.endswith('.csv')]
-    
+    categories = [file[:-4] for file in files if file.endswith('.csv')]
+
+    st.header("Ice Breaker: Quiz!")
+    st.subheader("A collection of trivia, multiple choice questions and answers!")
+    st.divider()
+    st.markdown("**Please select a category:**")
+
+    selected_category = st.selectbox('', categories)
+
     # Display CSV files
-    for csv_file in csv_files:
-        if st.button(os.path.splitext(csv_file)[0]):
-            # Load the selected CSV file
-            quiz.do(directory, csv_file)
+    if selected_category:
+        # Load the selected CSV file
+        quiz.do(directory, selected_category)
