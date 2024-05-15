@@ -1,7 +1,7 @@
 import google.generativeai as genai
 
 
-GOOGLE_API_KE = userdata.get('GOOGLE_API_KEY')
+GOOGLE_API_KEY = userdata.get('GOOGLE_API_KEY')
 genai.configure(api_key = GOOGLE_API_KEY)
 
 def generate_response(prompt):
