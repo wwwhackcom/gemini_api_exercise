@@ -44,18 +44,24 @@ def do(directory, category):
     
 
     if st.button("Gemini's Hint"):
+        response = use_gemini(quiz, True)
+        st.write(f"AI Response: {response}")
+
+    if st.button("Gemini's Answer"):
         response = use_gemini(quiz)
         st.write(f"AI Response: {response}")
             
     st.write(f"Your current quiz score: {st.session_state["correct_count"]}/{st.session_state["current_count"]}")
 
 def get_index(df):
-    #return st.session_state["current_index"] + 1
+    #return st.session_state.setdefault("current_index", 0) + 1
     return random.randint(0, len(df) - 1)
 
 def get_question(df):
     index = st.session_state["current_index"]
-    question = df.loc[index, 'Questions']
+    if index >= len(df):
+        index = 0
+    question = df.iloc[index]['Questions']
     options_labels = ['A', 'B', 'C', 'D']
     options = [f"{label}. {df.loc[index, label]}" for label in options_labels if not pd.isnull(df.loc[index, label])]
     answer = df.loc[index, 'Correct']
@@ -82,6 +88,10 @@ def display_options(current_quiz):
     for option in current_quiz["options"]:
         st.write(f"***{option}***")
     
-def use_gemini(current_quiz):
-    prompt = f"question is {current_quiz["question"]}, and options are {current_quiz["options"]}"
+def use_gemini(current_quiz, hint_only = False):
+    prompt = f"question is {current_quiz['question']}, and options are {current_quiz['options']}"
+    if hint_only:
+        prompt += ", please give short explanation but not the answer."
+    else:
+        prompt += ", please give the answer and explanation."
     return api.generate_response(prompt)
