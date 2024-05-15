@@ -12,7 +12,7 @@ def display_files_in_directory(directory):
     files = os.listdir(directory)
     
     # Filter for CSV files
-    categories = [file[:-4] for file in files if file.endswith('.csv')]
+    categories = sorted([file[:-4] for file in files if file.endswith('.csv')])
     return categories
 
 def display_categories():

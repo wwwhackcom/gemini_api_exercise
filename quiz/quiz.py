@@ -1,7 +1,10 @@
 import os
+import sys
+sys.path.insert(0, '..')
 import random
 import streamlit as st
 import pandas as pd
+import generativeai as api
 
 #@st.cache_data
 def load_data(directory, category):
@@ -22,7 +25,7 @@ def do(directory, category):
         st.session_state["user_answers"] = []
 
     if "current_index" not in st.session_state:
-        st.session_state["current_index"] = 0
+        st.session_state["current_index"] = get_index(quiz_df)
 
     if "current_count" not in st.session_state:
         st.session_state["current_count"] = 1
@@ -30,19 +33,27 @@ def do(directory, category):
     if "correct_count" not in st.session_state:
         st.session_state["correct_count"] = 0
 
-    if "current_quiz" not in st.session_state:
-        st.session_state["current_quiz"] = get_question(quiz_df)
-        
-    display_question(st.session_state["current_quiz"])
+
     if st.button('Next'):
-        st.session_state["current_index"] += 1
+        st.session_state["current_index"] = get_index(quiz_df)
         st.session_state["current_count"] += 1
-        st.session_state["current_quiz"] = get_question(quiz_df) 
+
+    quiz = get_question(quiz_df)
+    display_question(quiz)
+
+    
+
+    if st.button("Gemini's Hint"):
+        response = use_gemini(quiz)
+        st.write(f"AI Response: {response}")
             
     st.write(f"Your current quiz score: {st.session_state["correct_count"]}/{st.session_state["current_count"]}")
 
+def get_index(df):
+    #return st.session_state["current_index"] + 1
+    return random.randint(0, len(df) - 1)
+
 def get_question(df):
-    #index = random.randint(0, len(df) - 1)
     index = st.session_state["current_index"]
     question = df.loc[index, 'Questions']
     options_labels = ['A', 'B', 'C', 'D']
@@ -71,3 +82,6 @@ def display_options(current_quiz):
     for option in current_quiz["options"]:
         st.write(f"***{option}***")
     
+def use_gemini(current_quiz):
+    prompt = f"question is {current_quiz["question"]}, and options are {current_quiz["options"]}"
+    return api.generate_response(prompt)
