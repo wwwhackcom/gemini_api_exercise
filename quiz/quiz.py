@@ -41,13 +41,11 @@ def do(directory, category):
     quiz = get_question(quiz_df)
     display_question(quiz)
 
-    
-
     if st.button("Gemini's Hint"):
         response = use_gemini(quiz, True)
         st.write(f"AI Response: {response}")
 
-    if st.button("Gemini's Answer"):
+    if st.button("Gemini's Answer: 0-shot"):
         response = use_gemini(quiz)
         st.write(f"AI Response: {response}")
             
@@ -68,6 +66,7 @@ def get_question(df):
     return {"question": question, "options": options, "correct_answer": answer}
 
 def display_question(quiz):
+    use_ai = st.checkbox("AI check: 1-shot", key="use_ai")
     with st.form("quiz_form", clear_on_submit = True):
         st.markdown(f"<h6 style='text-align: left; color: black;'>Question: {quiz["question"]}</h6>", unsafe_allow_html=True)
 
@@ -77,7 +76,10 @@ def display_question(quiz):
     
 def check_answer(current_quiz):
     input_answer = st.session_state["input_answer"].strip()
-    is_correct = input_answer.lower() == current_quiz["correct_answer"].lower()
+    if st.session_state["use_ai"]:
+        is_correct = check_with_gemini(current_quiz["question"], current_quiz["options"], input_answer)
+    else:
+        is_correct = input_answer.lower() == current_quiz["correct_answer"].lower()
     if is_correct:
         st.success(f"{input_answer} is correct!", icon="✅")
         st.session_state["correct_count"] += 1
@@ -95,3 +97,31 @@ def use_gemini(current_quiz, hint_only = False):
     else:
         prompt += ", please give the answer and explanation."
     return api.generate_response(prompt)
+
+def check_with_gemini(question, options, input_answer):
+    prompt = (
+        "What is the accuracy of the given answer to the given question.\n" +
+        "Always start the response with '{score}/10', explain the answer afterwards.\n" +
+        "When evaluating answers, ignore case sensitive.\n" +
+        "Examples\n" +
+        "Question: Which of these animals swims the fastest?\n" +
+        "Options: A. Flounder; B. Shark; C. Dolphin; D. Jellyfish\n" +  
+        "Answer: Dolphin\n" + 
+        "Response: 10/10\n" + 
+        "The answer is correct since Dolphins are known for their speed can be up to 56 kilometers per hour in short bursts.!\n" +
+        "Question: These are the least painful parts of the body to put a tattoo on.\n" +
+        "Options: A. The shoulders; B. The ankles; C. Fleshy parts of the arms and legs; D. The belly and the calf\n" +  
+        "Answer: The shoulders\n" + 
+        "Response: 3/10\n" +
+        "The answer is not correct since shoulders areas have more nerves and bones, which can make the tattooing process more painful.\n" +
+        "Question: " + question + "\n" +
+        "Options: " + '; '.join(options) + "\n" +  
+        "Answer: " + input_answer + "\n"
+        "Response:"
+    )
+    #st.info(prompt, icon="🤖")
+    response = api.generate_response(prompt)
+    st.info(response, icon="🤖")
+    score = int((response.split("\n")[0]).split("/")[0])
+    is_correct = score>=9
+    return is_correct
