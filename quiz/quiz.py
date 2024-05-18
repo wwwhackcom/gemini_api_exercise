@@ -49,7 +49,7 @@ def do(directory, category):
         response = use_gemini(quiz)
         st.write(f"AI Response: {response}")
             
-    st.write(f"Your current quiz score: {st.session_state["correct_count"]}/{st.session_state["current_count"]}")
+    st.write(f"Your current quiz score: {st.session_state['correct_count']}/{st.session_state['current_count']}")
 
 def get_index(df):
     #return st.session_state.setdefault("current_index", 0) + 1
@@ -68,7 +68,7 @@ def get_question(df):
 def display_question(quiz):
     use_ai = st.checkbox("AI check: 1-shot", key="use_ai")
     with st.form("quiz_form", clear_on_submit = True):
-        st.markdown(f"<h6 style='text-align: left; color: black;'>Question: {quiz["question"]}</h6>", unsafe_allow_html=True)
+        st.markdown(f"<h6 style='text-align: left; color: black;'>Question: {quiz['question']}</h6>", unsafe_allow_html=True)
 
         st.text_input("Answer:", key="input_answer")
         st.form_submit_button(label="Submit", on_click=check_answer, kwargs={"current_quiz": quiz})
