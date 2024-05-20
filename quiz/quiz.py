@@ -17,7 +17,6 @@ def load_data(directory, category):
     return df
 
 def do(directory, category):
-    # Load the selected CSV file
     quiz_df = load_data(directory, category)
     
     # Initialize session state
@@ -48,7 +47,7 @@ def do(directory, category):
     if st.button("Gemini's Answer: 0-shot"):
         response = use_gemini(quiz)
         st.write(f"AI Response: {response}")
-            
+
     st.write(f"Your current quiz score: {st.session_state['correct_count']}/{st.session_state['current_count']}")
 
 def get_index(df):
@@ -66,7 +65,7 @@ def get_question(df):
     return {"question": question, "options": options, "correct_answer": answer}
 
 def display_question(quiz):
-    use_ai = st.checkbox("AI check: 1-shot", key="use_ai")
+    use_ai = st.checkbox("AI check: few-shot", key="use_ai")
     with st.form("quiz_form", clear_on_submit = True):
         st.markdown(f"<h6 style='text-align: left; color: black;'>Question: {quiz['question']}</h6>", unsafe_allow_html=True)
 
