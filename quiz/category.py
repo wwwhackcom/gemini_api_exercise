@@ -18,9 +18,7 @@ def display_files_in_directory(directory):
 def display_categories():
     directory = 'quiz/csv/'
     categories = display_files_in_directory(directory)
-    st.header("Ice Breaker: Quiz!")
-    st.subheader("A collection of trivia, multiple choice questions and answers!")
-    st.divider()
+    st.subheader("Ice Breaker: Quiz!")
     st.markdown("**Please select a category:**")
 
     selected_category = st.selectbox('', categories)
